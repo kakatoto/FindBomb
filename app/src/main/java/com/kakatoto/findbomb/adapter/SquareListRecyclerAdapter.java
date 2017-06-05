@@ -5,11 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.kakatoto.findbomb.R;
-import com.kakatoto.findbomb.model.Square;
+import com.kakatoto.findbomb.model.Block;
 import com.kakatoto.findbomb.util.CommonUtil;
 
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import butterknife.ButterKnife;
 public class SquareListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String TAG = SquareListRecyclerAdapter.class.getSimpleName();
     //Data
-    private ArrayList<Square> itemList;
+    private ArrayList<Block> itemList;
     private Context context;
     private OnItemSelectListener onItemSelectListener;
 
@@ -30,7 +29,7 @@ public class SquareListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         this.context = context;
     }
 
-    public void setItemList(ArrayList<Square> itemList) {
+    public void setItemList(ArrayList<Block> itemList) {
         this.itemList = itemList;
     }
 
@@ -48,16 +47,16 @@ public class SquareListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int pos) {
 
-        Square item = itemList.get(pos);
+        Block item = itemList.get(pos);
         ViewHolder holder = (ViewHolder) viewHolder;
 
-       // holder.txtNum.setText(String.valueOf(item.getCenter()));
+        Boolean isBomb = item.getBomb();
 
-        if(item.getBomb()) {
+        if(isBomb) {
             holder.txtNum.setText("*");
             holder.txtNum.setTextColor(context.getResources().getColor(R.color.colorAccent));
         }else{
-            if(!CommonUtil.isNull(item.getMineCount())) {
+            if(!CommonUtil.isNull(item.getMineCount()) && item.getMineCount() > 0) {
                 holder.txtNum.setText(String.valueOf(item.getMineCount()));
             }
         }
@@ -80,8 +79,6 @@ public class SquareListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.txtNum)
         TextView txtNum;
-        @BindView(R.id.txtCount)
-        TextView txtCount;
 
         public ViewHolder(View itemView) {
             super(itemView);

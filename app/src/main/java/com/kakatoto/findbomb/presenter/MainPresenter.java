@@ -1,13 +1,11 @@
 package com.kakatoto.findbomb.presenter;
 
-import android.util.Log;
-
 import com.kakatoto.findbomb.adapter.SquareListRecyclerAdapter;
-import com.kakatoto.findbomb.model.Square;
+import com.kakatoto.findbomb.model.Block;
 import com.kakatoto.findbomb.presenter.impl.IMainContract;
+import com.kakatoto.findbomb.util.CommonUtil;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by ohyowan on 2017. 6. 3..
@@ -17,12 +15,12 @@ public class MainPresenter implements IMainContract.Presenter {
     private final String TAG = MainPresenter.class.getSimpleName();
     private IMainContract.View view;
     private SquareListRecyclerAdapter adapter;
-
-    int row = 7; // 줄
-    int column = 7; // 칸
-    int max = row * column;
-    int bomb = 3; // 지뢰
-    private ArrayList<Square> list = new ArrayList<>();
+    private final int NONE = -999;
+    int row = 0; // 줄
+    int column = 0; // 칸
+    int max = 0; // 최대칸
+    int mine = 3; // 지뢰
+    private ArrayList<Block> list = new ArrayList<>();
 
     @Override
     public void attatch(IMainContract.View view) {
@@ -48,42 +46,57 @@ public class MainPresenter implements IMainContract.Presenter {
     }
 
     @Override
-    public void onSettingClick() {
-        list.clear();
+    public void onSettingClick(String c, String r, String m) {
+        if (!CommonUtil.isNull(c) && !CommonUtil.isNull(r) && !CommonUtil.isNull(m)) {
+            this.column = Integer.parseInt(c);
+            this.row = Integer.parseInt(r);
+            this.mine = Integer.parseInt(m);
+            if (column > 0 && row > 0 && mine > 0) {
+                this.max = row * column;
+                this.setGameSet();
+            }
+        }
+    }
+
+    @Override
+    public void setGameSet() {
+        this.list.clear();
         setBoard();
         setMine();
         setMineCount();
         view.setRecycler(column);
     }
 
-    public void setBoard(){
-        int count = 1;
+    @Override
+    public void setBoard() {
+        int pos = 1;
         for (int i = 0; i < column; i++) {
             for (int j = 0; j < row; j++) {
-                list.add(setSquare(count));
-                count++;
+                list.add(setBlock(pos));
+                pos++;
             }
         }
     }
 
-    public Square setSquare(int num) {
-        Square square = new Square();
-        int center = num;
-        int left = num - 1 > 0 ? num - 1 : -1;
-        int right = num + 1 <= max ? num + 1 : -1;
-        int up = num - row > 0 ? num - row : -1;
-        int down = num + row <= max ? num + row : -1;
-        int leftUp = num - row - 1 > 0 ? num - row - 1 : -1;
-        int rightUp = num - (row - 1) > 0 ? num - (row - 1) : -1;
-        int leftDown = num + row - 1 <= max ? num + row - 1 : -1;
-        int rightDown = num + (row + 1) <= max ? num + (row + 1) : -1;
+    @Override
+    public Block setBlock(int pos) {
+        Block square = new Block();
+        int center = pos;
+        int left = pos - 1 > 0 ? pos - 1 : NONE;
+        int right = pos + 1 <= max ? pos + 1 : NONE;
+        int up = pos - column > 0 ? pos - column : NONE;
+        int down = pos + column <= max ? pos + column : NONE;
+        int leftUp = pos - column - 1 > 0 ? pos - column - 1 : NONE;
+        int rightUp = pos - (column - 1) > 0 ? pos - (column - 1) : NONE;
+        int leftDown = pos + column - 1 <= max ? pos + column - 1 : NONE;
+        int rightDown = pos + (column + 1) <= max ? pos + (column + 1) : NONE;
 
-        if (num % row == 0) {
-            right = rightUp = rightDown = -1;
+        if (pos % column == 0) {
+            right = rightUp = rightDown = NONE;
         }
 
-        if (num % row == 1) {
-            left = leftUp = leftDown = -1;
+        if (pos % column == 1) {
+            left = leftUp = leftDown = NONE;
         }
 
         square.setCenter(center);
@@ -102,8 +115,9 @@ public class MainPresenter implements IMainContract.Presenter {
     }
 
 
+    @Override
     public void setMine() {
-        for (int i = 0; i < bomb; i++) {
+        for (int i = 0; i < mine; i++) {
             int random = (int) (Math.random() * list.size());
             if (!list.get(random).getBomb()) {
                 list.get(random).setBomb(true);
@@ -111,6 +125,7 @@ public class MainPresenter implements IMainContract.Presenter {
         }
     }
 
+    @Override
     public void setMineCount() {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getBomb()) {
@@ -135,11 +150,13 @@ public class MainPresenter implements IMainContract.Presenter {
         }
     }
 
-    public void addMineCount(int num) {
-        if (num == -1)
+    @Override
+    public void addMineCount(int pos) {
+        if (pos == NONE)
             return;
 
-        int currentCount = list.get(num-1).getMineCount();
-        list.get(num-1).setMineCount(currentCount + 1);
+        int currentCount = list.get(pos - 1).getMineCount();
+        list.get(pos - 1).setMineCount(currentCount + 1);
     }
+
 }

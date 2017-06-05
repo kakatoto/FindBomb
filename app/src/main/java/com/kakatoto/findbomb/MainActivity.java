@@ -1,19 +1,23 @@
 package com.kakatoto.findbomb;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.kakatoto.findbomb.adapter.SquareListRecyclerAdapter;
-import com.kakatoto.findbomb.model.Square;
 import com.kakatoto.findbomb.presenter.MainPresenter;
 import com.kakatoto.findbomb.presenter.impl.IMainContract;
 import com.kakatoto.findbomb.util.CommonUtil;
-import com.kakatoto.findbomb.util.RecyclerDecGrid;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,16 +48,12 @@ public class MainActivity extends AppCompatActivity implements IMainContract.Vie
 
     @OnClick(R.id.btnSetting)
     public void settingButton() {
-        Log.d(TAG, "settingButton: ");
-        presenter.onSettingClick();
-
-
+        settingPopup();
     }
 
     @OnClick(R.id.btnRefresh)
     public void refreshButton() {
-        Log.d(TAG, "refreshButton: ");
-
+        presenter.setGameSet();
     }
 
     @Override
@@ -64,5 +64,29 @@ public class MainActivity extends AppCompatActivity implements IMainContract.Vie
         recyclerView.setLayoutManager(layoutManager);
         presenter.setAdapter(adapter);
         recyclerView.setAdapter(adapter);
+    }
+
+    public void settingPopup() {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.setting_popup, (ViewGroup) findViewById(R.id.layout_root));
+        ButterKnife.bind(layout, this);
+        final EditText edtColumn = ButterKnife.findById(layout, R.id.edtColumn);
+        final EditText edtRow = ButterKnife.findById(layout, R.id.edtRow);
+        final EditText edtMine = ButterKnife.findById(layout, R.id.edtMine);
+
+
+        new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT).setView(layout).setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        presenter.onSettingClick(edtColumn.getText().toString(), edtRow.getText().toString(), edtMine.getText().toString());
+                    }
+                })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.dismiss();
+                            }
+                        })
+                .show();
     }
 }

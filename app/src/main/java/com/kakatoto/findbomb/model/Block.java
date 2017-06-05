@@ -4,7 +4,7 @@ package com.kakatoto.findbomb.model;
  * Created by ohyowan on 2017. 6. 3..
  */
 
-public class Square {
+public class Block {
     int center;
     int left;
     int right;
@@ -17,7 +17,7 @@ public class Square {
     Boolean isBomb ;
     int mineCount;
 
-    public Square() {
+    public Block() {
     }
 
     public int getMineCount() {
