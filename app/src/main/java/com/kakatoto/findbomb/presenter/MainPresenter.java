@@ -117,10 +117,16 @@ public class MainPresenter implements IMainContract.Presenter {
 
     @Override
     public void setMine() {
-        for (int i = 0; i < mine; i++) {
+
+        int count = 0;
+        while (true){
             int random = (int) (Math.random() * list.size());
             if (!list.get(random).getBomb()) {
                 list.get(random).setBomb(true);
+                count++;
+            }
+            if(count == mine){
+                break;
             }
         }
     }
